@@ -4,6 +4,10 @@ jQuery(document).ready(function($){
 
     $('.check_order').on('click', function() {
         $thisbutton = $(this);
+        csv_file = $(this).closest('form').find('.csv_file_status').val(); 
+        console.log("🚀 ~ $ ~ csv_file:", csv_file);
+        current_post_id = $(this).closest('form').find('.current_post_id').val(); 
+        console.log("🚀 ~ $ ~ current_post_id:", current_post_id);
         order_phone = $(this).closest('form').find('.form-row input#order_tel').val();
         console.log("🚀 ~ file: ajax-scripts.js:403 ~ $ ~ order_phone:", order_phone);
         order_num = $(this).closest('form').find('.form-row input#order_num').val();
@@ -47,7 +51,9 @@ jQuery(document).ready(function($){
                 data: {
                     'action': 'check_order_tel',
                     'order_phone': order_phone,
-                    'order_num' : order_num
+                    'order_num' : order_num,
+                    'csv_file' : csv_file,
+                    'current_post_id' : current_post_id
                 },
                 beforeSend: function (response) {
                     $thisbutton.addClass('loader_active');
@@ -79,10 +85,21 @@ jQuery(document).ready(function($){
                             order_title = results.order_data.ORDNAME;
                             order_status = results.order_data.ORDSTATUSDES;
                             order_username = results.order_data.ROYY_CUSTDES;
+                            status_desc = results.description;
+                            console.log("🚀 ~ $ ~ status_desc:", status_desc);
                             $(".measurement_coordination_process_wrapper form h2 .order_username").text(order_username);
                             $(".measurement_coordination_process_wrapper form dd.order_name").text(order_title);
                             $(".measurement_coordination_process_wrapper form dd.order_status").text(order_status);
                             $(".measurement_coordination_process_wrapper form input[name='order_status']").val(order_status);
+                            if(status_desc != null){
+                                $(".order_details_title .tooltip .tooltip_txt").text(status_desc);
+                                $(".order_details_title .tooltip").show();
+                            }
+                                
+                            else{
+                                $(".order_details_title .tooltip .tooltip_txt").text();
+                                $(".order_details_title .tooltip").hide();
+                            }
                             if(order_status != 'לתיאום מיידי' && order_status != 'המתנה לתיאום' && order_status != 'הזמנה למדידה'){
                                 $(".radio_btns_wrap").hide();
                                 //$(".send_btn").hide();

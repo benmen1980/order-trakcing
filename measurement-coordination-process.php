@@ -71,10 +71,31 @@ function check_order_tel() {
             //     'ordname' => $body_array['value']['ORDNAME'],
             //     'ordstatus' => $body_array['value']['ORDSTATUSDES'],
             // ]
+   
+
+            // Read the CSV file
+            $csv = get_field('status_file',$_POST['current_post_id'] )['url'];
+            if (($handle = fopen($csv, "r")) !== FALSE) {
+                // Loop through each row in the CSV file
+                while (($data_csv = fgetcsv($handle, 1000, ",")) !== FALSE) {
+                    // Assuming your CSV file has two columns (name and description)
+                    $status = $data_csv[0]; // Get the value from the first column
+                    if($status == $data['ORDSTATUSDES']){
+                        $description = $data_csv[1]; // Get the value from the second column
+                        break;
+                    } 
+                    else{
+                        $description = '';
+                    }     
+                }
+                fclose($handle);
+            } 
+
             $response = array(
                 'find_order' => true,
                 'message' => 'success',
-                'order_data' => $data
+                'order_data' => $data,
+                'description' => $description
             );
         }
         else{
@@ -194,12 +215,20 @@ function measurement_coordination_form_shortcode() {
     ob_start(); // Start output buffering
 
     // Form HTML - Customize this according to your requirements
+
     ?>
     <div class="measurement_coordination_process_wrapper">
         <h1><?php esc_html_e( 'תהליך תאום מדידה:', 'carpentry' ); ?></h1>
         <form id="process_form">
             <!-- STEP 1 SECTION -->
             <section class="step_1">
+                <?php 
+                 $csv = get_field('status_file')['url'];
+                 $post_id = get_the_ID();
+                 //print_r($csv);
+                 ?>
+                 <input class="csv_file_status" type="hidden" value="<?php echo $csv;?>">
+                 <input class="current_post_id" type="hidden" value="<?php echo $post_id;?>">
                 <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
                     <label for="order_tel"><?php esc_html_e( 'מספר טלפון', 'woocommerce' ); ?>&nbsp;<span class="required">*</span></label>
                     <input class="woocommerce-Input woocommerce-Input--text input-text" type="tel" name="order_tel" id="order_tel" />
@@ -235,6 +264,12 @@ function measurement_coordination_form_shortcode() {
                     <div class="order_details_title">
                         <dt><?php esc_html_e( 'סטטוס הזמנה:', 'carpentry' ); ?></dt>
                         <dd class="order_status"></dd>
+                        <div class="tooltip">
+                            <div class="tooltip_icon" aria-hidden="true">?</div>
+                            <div class="tooltip_txt">
+                           </div>
+                        </div>
+                        
                     </div>
                 </dl>
                 <input type="hidden" name="order_status">
