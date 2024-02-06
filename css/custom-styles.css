@@ -80,6 +80,23 @@
     margin-bottom: 20px;
     font-size: 30px;
 }
+.measurement_coordination_process_wrapper form .step_2 .remarks_wrapper{
+
+}
+.measurement_coordination_process_wrapper form .step_2 .remarks_wrapper label{
+    margin-bottom: 20px;
+    font-size: 25px;
+    font-weight: bold;
+    display: block;
+}
+.measurement_coordination_process_wrapper form .step_2 .remarks_wrapper textarea{
+    width: 100%;
+    background-color: #f5f5f5;
+    font-size: 20px;
+    border: 1px solid #f5f5f5;
+    border-radius: 5px;
+    padding: 10px;
+}
 .measurement_coordination_process_wrapper form .step_2 .order_details_title{
     display: flex;
     align-items: center;
@@ -107,6 +124,14 @@
 .measurement_coordination_process_wrapper form .step_2 .step_2_btns_wrapper button{
     margin: 0;
 }
+
+.measurement_coordination_process_wrapper form .step_2 .send_msg_wrapper{
+    color: #868685;
+    line-height: 2;
+    padding: 10px;
+    font-style: italic;
+    margin-top: 40px;
+} 
 .measurement_coordination_process_wrapper form button.loader_active .loader_wrap{
     position: absolute;
     width: 100%;

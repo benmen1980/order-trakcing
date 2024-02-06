@@ -54,7 +54,7 @@ function check_order_tel() {
 
     PriorityAPI\API::instance()->run();
 	// make request
-    $url_addition = 'ORDERS?$select=CURDATE,ORDNAME,ORDSTATUSDES&$filter=ORDNAME eq \''.$order_num.'\' and ROYY_PHONE eq \''.$order_phone .'\' &$expand=ORDERITEMS_SUBFORM($select = PDES,TQUANT)'  ;
+    $url_addition = 'ORDERS?$select=ROYY_CUSTDES,CDES,CURDATE,ORDNAME,ORDSTATUSDES&$filter=ORDNAME eq \''.$order_num.'\' and CORI_SMS1 eq \''.$order_phone .'\' &$expand=ORDERITEMS_SUBFORM($select = PDES,TQUANT)'  ;
 	$response = PriorityAPI\API::instance()->makeRequest('GET', $url_addition, null,true);
 
     if ($response['code']<=201) {
@@ -66,6 +66,7 @@ function check_order_tel() {
             }
             $data['ORDNAME'] = $body_array['value'][0]['ORDNAME'];
             $data['ORDSTATUSDES'] = $body_array['value'][0]['ORDSTATUSDES'];
+            $data['ROYY_CUSTDES'] = $body_array['value'][0]['ROYY_CUSTDES'];
             // $data = [
             //     'ordname' => $body_array['value']['ORDNAME'],
             //     'ordstatus' => $body_array['value']['ORDSTATUSDES'],
@@ -120,37 +121,66 @@ function process_form(){
     $resultArray = array();
     parse_str($data, $resultArray);
     $order_date = (!empty($resultArray['choose_date']) ? $resultArray['choose_date'] : $resultArray['datepicker']);
-    if (!empty($order_date)) {
-        $order_tel = $resultArray['order_tel'];
-        $order_num = $resultArray['order_num'];
-        $order_status = $resultArray['order_status'];
-       
-        $admin_email = get_option('admin_email');
-        // Send email
-        $to = $admin_email; // Change this to your email address
-        $subject = 'פרטי תיאום מדידה';
+    $order_tel = $resultArray['order_tel'];
+    $order_num = $resultArray['order_num'];
+    $order_status = $resultArray['order_status'];
+    $headers = array('Content-Type: text/html; charset=UTF-8');
+    $admin_email = get_option('admin_email');
+    // Send email
+    //$to = $admin_email; // Change this to your email address
+    $to = "Service.hamikzoanim@gmail.com";
+    $subject = 'פרטי תיאום מדידה';
+
+    if($order_status == 'לתיאום מיידי' || $order_status == 'המתנה לתיאום' || $order_status == 'הזמנה למדידה'){
+        if (!empty($order_date)) {
+            $body = "לקוח עם מספר טלפון: ".$order_tel;
+            $body.= "<br/>";
+            $body.= "מספר הזמנה: ".$order_num;
+            $body.= "<br/>";
+            $body.= "מבקש סטטוס: ".$order_status;
+            $body.= "<br/>";
+            $body.= "בתאריך : ".$order_date;
+            $body.= "<br/>";
+            if(!empty($resultArray['order_remark'])){
+                $body.= "הערת הלקוח: ".$resultArray['order_remark'];
+                $body.= "<br/>";
+            }
+            
+            wp_mail($to, $subject, $body, $headers);
+            $msg = 'בקשתך התקבלה בהצלחה';
+            $msg.= "<br/>";
+            $msg.= 'שים לב!';
+            $msg.= 'קבלת העדכון לא מהווה את אישורו,';
+            $msg.= "<br/>";
+            $msg.= 'נציג מטעמנו יצור איתכם קשר בהקדם לאשר את הפרטים המשך יום טוב ';
+            $response = array(
+                'message' => $msg,
+                //'message' => $body
+                // Add more data to the response if needed
+            );
+        }
+        else{
+            $response = array(
+                'message' => 'בחירת תאריך הינה חובה'
+                // Add more data to the response if needed
+            );
+        }
+    }
+    else{
         $body = "לקוח עם מספר טלפון: ".$order_tel;
         $body.= "<br/>";
         $body.= "מספר הזמנה: ".$order_num;
         $body.= "<br/>";
-        $body.= "מבקש סטטוס: ".$order_status;
+        $body.= "סטטוס: ".$order_status;
         $body.= "<br/>";
-        $body.= "בתאריך: ".$order_date;
-  
-        $headers = array('Content-Type: text/html; charset=UTF-8');
-    
+        if(!empty($resultArray['order_remark'])){
+            $body.= "הערת הלקוח: ".$resultArray['order_remark'];
+            $body.= "<br/>";
+        }
         wp_mail($to, $subject, $body, $headers);
 
         $response = array(
             'message' => 'פניתך התקבלה בהצלחה',
-            //'message' => $body
-            // Add more data to the response if needed
-        );
-    }
-    else{
-        $response = array(
-            'message' => 'בחירת תאריך הינה חובה'
-            // Add more data to the response if needed
         );
     }
     wp_send_json($response);
@@ -192,6 +222,10 @@ function measurement_coordination_form_shortcode() {
                 <div class="error_msg"></div>
             </section>
             <section class="step_2">
+                <h2>
+                    <?php esc_html_e( ' שלום', 'carpentry' ); ?>
+                    <span class="order_username"></span>
+                </h2>
                 <h2><?php esc_html_e( 'פרטי הזמנה:', 'carpentry' ); ?></h2>
                 <dl>
                     <div class="order_details_title">
@@ -213,6 +247,12 @@ function measurement_coordination_form_shortcode() {
                     </thead>
                     <tbody></tbody>
                 </table>
+                <div class="remarks_wrapper">
+                    <p class="woocommerce-form-row woocommerce-form-row--wide form-row form-row-wide">
+                        <label for="order_remark"><?php esc_html_e( 'הזן את ההערה שלך כאן', 'woocommerce' ); ?></label>
+                        <textarea placeholder="<?php esc_html_e( 'הזן את ההערה שלך כאן', 'woocommerce' ); ?>" id="order_remark" name="order_remark"  rows="6" ></textarea>
+                    </p>
+                </div>
                 <div class="radio_btns_wrap">
                     <h2><?php esc_html_e( 'בחר תאריך תיאום:', 'carpentry' ); ?></h2>
                     <div class="radio_item">

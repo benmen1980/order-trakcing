@@ -78,16 +78,18 @@ jQuery(document).ready(function($){
                             });
                             order_title = results.order_data.ORDNAME;
                             order_status = results.order_data.ORDSTATUSDES;
+                            order_username = results.order_data.ROYY_CUSTDES;
+                            $(".measurement_coordination_process_wrapper form h2 .order_username").text(order_username);
                             $(".measurement_coordination_process_wrapper form dd.order_name").text(order_title);
                             $(".measurement_coordination_process_wrapper form dd.order_status").text(order_status);
                             $(".measurement_coordination_process_wrapper form input[name='order_status']").val(order_status);
                             if(order_status != 'לתיאום מיידי' && order_status != 'המתנה לתיאום' && order_status != 'הזמנה למדידה'){
                                 $(".radio_btns_wrap").hide();
-                                $(".send_btn").hide();
+                                //$(".send_btn").hide();
                             }
                             else{
                                 $(".radio_btns_wrap").show();
-                                $(".send_btn").show();
+                                //$(".send_btn").show();
                             }
                         }
                     }
@@ -129,7 +131,7 @@ jQuery(document).ready(function($){
             },
             success: function (results) {
                 console.log(results);
-                $(".send_msg_wrapper").text(results.message);
+                $(".send_msg_wrapper").html(results.message);
             },
             complete: function (data) {
                 console.log('complete');
