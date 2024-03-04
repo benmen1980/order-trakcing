@@ -54,7 +54,7 @@ function check_order_tel() {
 
     PriorityAPI\API::instance()->run();
 	// make request
-    $url_addition = 'ORDERS?$select=ROYY_CUSTDES,CDES,CURDATE,ORDNAME,ORDSTATUSDES&$filter=ORDNAME eq \''.$order_num.'\' and CORI_SMS1 eq \''.$order_phone .'\' &$expand=ORDERITEMS_SUBFORM($select = PDES,TQUANT)'  ;
+    $url_addition = 'ORDERS?$select=ROYY_CUSTDES,CDES,CURDATE,ORDNAME,ORDSTATUSDES&$filter=ORDNAME eq \''.$order_num.'\' and CORI_ORDEMAIL eq \''.$order_phone .'\' &$expand=ORDERITEMS_SUBFORM($select = PDES,TQUANT)'  ;
 	$response = PriorityAPI\API::instance()->makeRequest('GET', $url_addition, null,true);
 
     if ($response['code']<=201) {
